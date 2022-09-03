@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Тест навигация
+{% endblock%}
+
+{% block sidebar %}
+{% include 'incl/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+
+{% for news in page_obj.object_list %}
+<p>{{news}}</p>
+
+{% endfor%}
+
+{% endblock %}
