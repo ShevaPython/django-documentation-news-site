@@ -21,6 +21,23 @@
             {% block sidebar%}SideBar{% endblock %}
         </div>
         <div class="col-md-8">
+
+            {% if messages %}
+            {% for message in messages %}
+                {%  if message.tags == 'error'  %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+
+            {% endif %}
+
             {% block content %}Content{% endblock %}
             <nav aria-label="Page navigation example">
                 {% if page_obj.has_other_pages %}

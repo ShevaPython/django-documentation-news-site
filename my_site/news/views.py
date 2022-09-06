@@ -2,9 +2,43 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.contrib import messages
+from django.contrib.auth import login, logout
 
-from .forms import NewsForm
+from .forms import NewsForm, UserRegisterForm, UserLoginForm
 from .models import News, Category
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Успешно авторизованы')
+            return redirect('home')
+        else:
+            messages.error(request, 'Ошибка авторизации')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'news/register.html', {'form': form})
+
+
+def user_login(request):
+    if request.method == 'POST':
+        form = UserLoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserLoginForm()
+    return render(request, 'news/login.html', {'form': form})
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('login')
 
 
 class HomeNews(ListView):
@@ -24,15 +58,6 @@ class HomeNews(ListView):
         return News.objects.filter(is_publish=True).select_related('category')
 
 
-# def index(request):
-#     news = News.objects.all()
-#     context = {
-#         'news': news,
-#         'title': 'Список с Базы даных',
-#
-#     }
-#     return render(request, 'news/index.html', context=context)
-
 class NewsByCategory(ListView):
     model = Category
     template_name = 'news/category.html'
@@ -49,26 +74,11 @@ class NewsByCategory(ListView):
         return News.objects.filter(category_id=self.kwargs['category_id'], is_publish=True).select_related('category')
 
 
-# def get_category(request, category_id):
-#     news = News.objects.filter(category_id=category_id)
-#     category = Category.objects.get(pk=category_id)
-#     context = {'news': news,
-#
-#                'category': category
-#
-#                }
-#     return render(request, 'news/category.html', context=context)
-
 class ShowPost(DeleteView):
     model = News
     template_name = 'news/view_news.html'
     # pk_url_kwarg = 'news_id'
     context_object_name = 'item'
-
-
-# def view_news(request, news_id):
-#     item = get_object_or_404(News, pk=news_id)
-#     return render(request, 'news/view_news.html', {'item': item})
 
 
 class AddNews(LoginRequiredMixin, CreateView):
@@ -77,16 +87,6 @@ class AddNews(LoginRequiredMixin, CreateView):
     login_url = '/admin/'
     # raise_exception = True
 
-
-# def add_news(request):
-#     if request.method == 'POST':
-#         form = NewsForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             news = form.save()
-#             return redirect('home')
-#     else:
-#         form = NewsForm()
-#     return render(request, 'news/add_news.html', {'form': form})
 
 def test(request):
     news = News.objects.all()
