@@ -109,7 +109,7 @@ def email(request):
             else:
                 messages.error(request, 'Ошибка отправки')
         else:
-            messages.error(request, 'Ошибка авторизации')
+            messages.error(request, 'Ошибка валидации')
     else:
         form = ContactForm()
     return render(request, 'news/contactemail.html', {'form': form})
