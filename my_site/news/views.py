@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -5,7 +6,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth import login, logout
 
-from .forms import NewsForm, UserRegisterForm, UserLoginForm
+from .forms import NewsForm, UserRegisterForm, UserLoginForm, ContactForm
 from .models import News, Category
 
 
@@ -94,3 +95,21 @@ def test(request):
     page_number = request.GET.get('page', 1)
     page_objects = paginator.get_page(page_number)
     return render(request, 'news/test.html', {'page_obj': page_objects})
+
+
+def email(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            mail = send_mail(form.cleaned_data['subject'], form.cleaned_data['content'], 'welcome-my@ukr.net',
+                             ['shevadotka@gmail.com'], fail_silently=True,)
+            if mail:
+                messages.success(request, 'Письмо отправленно')
+                return redirect('email')
+            else:
+                messages.error(request, 'Ошибка отправки')
+        else:
+            messages.error(request, 'Ошибка авторизации')
+    else:
+        form = ContactForm()
+    return render(request, 'news/contactemail.html', {'form': form})

@@ -24,7 +24,9 @@
                 <img src="https://picsum.photos/id/101/367/267" alt="Фото" width="300" class="mar-3">
                 {% endif %}
                 <h5 class="card-title">{{item.title}}</h5>
-                <p class="card-text">{{ item.content | linebreaks}}</p>
+                {% autoescape off %}
+                <p class="card-text">{{ item.content | linebreaks | escape }}</p>
+                {% endautoescape %}
 
             </div>
         </div>
